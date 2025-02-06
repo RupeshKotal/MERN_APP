@@ -1,18 +1,23 @@
 import "../Style/profile.css";
 import "bootstrap/dist/css/bootstrap.min.css";
 import NavBar from "../component/NavBar";
-import data from "../data.json";
-import clip1 from "../assets/clip-01.jpg";
-import clip2 from "../assets/clip-02.jpg";
-import clip3 from "../assets/clip-03.jpg";
-import clip4 from "../assets/clip-04.jpg";
 import profile from "../assets/profile.jpg";
 import profileg from "../assets/profileGirl.jpg";
 import { useState, useEffect, Fragment } from "react";
+
+// ✅ Define User Type
+interface User {
+  gender: string;
+  firstName: string;
+  lastName: string;
+  email: string;
+  age: number;
+  phone: string;
+}
+
 function Profile() {
-
-
-  const [user, setUser] = useState({});
+  // ✅ Updated useState Hook with Type
+  const [user, setUser] = useState<User | null>(null);
 
   useEffect(() => {
     const token = localStorage.getItem("token");
@@ -23,25 +28,28 @@ function Profile() {
           "Content-Type": "application/json",
           Authorization: `Bearer ${token}`,
         },
-      }).then((response) => {
-        if (response.ok) {
-          response.json().then((data) => {
-            setUser(data);
-          });
-        } else {
-          window.location.href = "/login";
-        }
-      });
+      })
+        .then((response) => {
+          if (response.ok) {
+            return response.json();
+          } else {
+            window.location.href = "/login";
+          }
+        })
+        .then((data: User) => {
+          setUser(data);
+        })
+        .catch((error) => console.error("Error fetching user data:", error));
     } else {
       window.location.href = "/login";
     }
   }, []);
 
+  // ✅ Prevent rendering before user data is loaded
+  if (!user) {
+    return <div>Loading...</div>;
+  }
 
-  // var image = profile;
-  // if (data.gender === "female") {
-  //   image = profileg;
-  // }
   return (
     <Fragment>
       <NavBar />
@@ -54,14 +62,17 @@ function Profile() {
                   <div className="main-profile">
                     <div className="row">
                       <div className="col-lg-4">
-                        {/* Render user profile image here */}
-                        <img src={user.gender === "female" ? profileg : profile} alt="Profile Image" />
+                        {/* ✅ Render user profile image based on gender */}
+                        <img src={user.gender === "female" ? profileg : profile} alt="Profile" />
                       </div>
                       <div className="col-lg-4 align-self-center">
                         <div className="main-info header-text">
                           <h1 id="firstname">{user.firstName}</h1>
                           <h5 id="lastname">{user.lastName}</h5>
-                          <p>"I'm {user.firstName}, a passionate gamer who loves exploring new worlds and conquering challenges. Let's conquer the gaming world together!"</p>
+                          <p>
+                            "I'm {user.firstName}, a passionate gamer who loves exploring new worlds
+                            and conquering challenges. Let's conquer the gaming world together!"
+                          </p>
                           <div className="main-border-button">
                             <a href="#">Update</a>
                           </div>
@@ -96,4 +107,5 @@ function Profile() {
     </Fragment>
   );
 }
+
 export default Profile;

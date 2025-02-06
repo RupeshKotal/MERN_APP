@@ -2,8 +2,18 @@ import "../Style/profile.css";
 import "bootstrap/dist/css/bootstrap.min.css";
 import { Fragment, useState, useEffect } from "react";
 
+// ✅ Define Product Type
+interface Product {
+  image: string;
+  name: string;
+  description: string;
+  category: string;
+  price: number;
+}
+
+// ✅ Updated useState Hook with Type
 function ProductInfo() {
-  const [inputValue, setInputValue] = useState({});
+  const [inputValue, setInputValue] = useState<Product | null>(null);
   const productID = localStorage.getItem("productID");
 
   useEffect(() => {
@@ -14,7 +24,7 @@ function ProductInfo() {
             "Content-Type": "application/json",
           },
         });
-        const data = await response.json();
+        const data: Product = await response.json();
         console.log(data);
         setInputValue(data);
       } catch (error) {
@@ -23,7 +33,7 @@ function ProductInfo() {
     };
 
     fetchData();
-  }, []);
+  }, [productID]); // ✅ Added dependency
 
   const onSubmithandler = () => {
     const token = localStorage.getItem("token");
@@ -49,10 +59,12 @@ function ProductInfo() {
           console.error("Error:", error);
         });
     }
-
-  
-
   };
+
+  // ✅ Prevent rendering before data is available
+  if (!inputValue) {
+    return <div>Loading...</div>;
+  }
 
   return (
     <Fragment>
@@ -65,7 +77,7 @@ function ProductInfo() {
                   <div className="main-profile ">
                     <div className="row">
                       <div className="col-lg-4">
-                        <img src={inputValue.image} alt="" />
+                        <img src={inputValue.image} alt="Product" />
                       </div>
                       <div className="col-lg-4 align-self-center">
                         <div className="main-info header-text">
@@ -84,7 +96,7 @@ function ProductInfo() {
                             Game Category <span>{inputValue.category}</span>
                           </li>
                           <li>
-                            Price <span>{inputValue.price}</span>
+                            Price <span>${inputValue.price}</span>
                           </li>
                         </ul>
                       </div>
