@@ -69,7 +69,9 @@ services:
     container_name: frontend
     restart: always
     depends_on:
-      - backend
+      - cart
+      - user
+      - product
     ports:
       - "80:80"
 
