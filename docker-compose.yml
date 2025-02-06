@@ -31,9 +31,9 @@ services:
       MONGO_INITDB_ROOT_USERNAME: admin
       MONGO_INITDB_ROOT_PASSWORD: password
 
-  Cart:
+  cart:
     build: ./backend/Cart
-    container_name: Cart
+    container_name: cart
     restart: always
     depends_on:
       - mongodb
@@ -42,9 +42,9 @@ services:
     environment:
       MONGO_URI: mongodb://admin:password@mongodb:27017/ecommerce
 
-  Product:
+  product:
     build: ./backend/Product
-    container_name: Product
+    container_name: product
     restart: always
     depends_on:
       - mongodb
@@ -53,9 +53,9 @@ services:
     environment:
       MONGO_URI: mongodb://admin:password@mongodb:27017/ecommerce
 
-  User:
+  user:
     build: ./backend/User
-    container_name: User
+    container_name: user
     restart: always
     depends_on:
       - mongodb
