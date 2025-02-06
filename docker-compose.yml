@@ -1,20 +1,54 @@
+# version: '3'
+# services:
+#   user:
+#     image: user
+#     ports:
+#       - "3001:3001"
+#     command: node server.js
+
+#   cart:
+#     image: cart
+#     ports:
+#       - "3003:3003"
+#     command: node server.js  
+
+#   product:
+#     image: product
+#     ports:
+#       - "3002:3002"
+#     command: node server.js
+
+
 version: '3'
 services:
-  user:
-    image: user
+  mongodb:
+    image: mongo:6.0
+    container_name: mongodb
+    restart: always
     ports:
-      - "3001:3001"
-    command: node server.js
+      - "27017:27017"
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: admin
+      MONGO_INITDB_ROOT_PASSWORD: password
 
-  cart:
-    image: cart
+  backend:
+    build: ./backend
+    container_name: backend
+    restart: always
+    depends_on:
+      - mongodb
     ports:
-      - "3003:3003"
-    command: node server.js  
+      - "5000:5000"
+    environment:
+      MONGO_URI: mongodb://admin:password@mongodb:27017/ecommerce
 
-  product:
-    image: product
+  frontend:
+    build: ./frontend
+    container_name: frontend
+    restart: always
+    depends_on:
+      - backend
     ports:
-      - "3002:3002"
-    command: node server.js
+      - "80:80"
+
     
