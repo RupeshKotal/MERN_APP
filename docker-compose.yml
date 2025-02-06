@@ -31,9 +31,31 @@ services:
       MONGO_INITDB_ROOT_USERNAME: admin
       MONGO_INITDB_ROOT_PASSWORD: password
 
-  backend:
-    build: ./backend
-    container_name: backend
+  Cart:
+    build: ./backend/Cart
+    container_name: Cart
+    restart: always
+    depends_on:
+      - mongodb
+    ports:
+      - "5000:5000"
+    environment:
+      MONGO_URI: mongodb://admin:password@mongodb:27017/ecommerce
+
+  Product:
+    build: ./backend/Product
+    container_name: Product
+    restart: always
+    depends_on:
+      - mongodb
+    ports:
+      - "5000:5000"
+    environment:
+      MONGO_URI: mongodb://admin:password@mongodb:27017/ecommerce
+
+  User:
+    build: ./backend/User
+    container_name: User
     restart: always
     depends_on:
       - mongodb
