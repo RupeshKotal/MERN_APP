@@ -25,7 +25,7 @@ RUN npm install --only=production
 COPY . .
 
 # Expose the port the app runs on
-EXPOSE 5000
+EXPOSE 3001:3001
 
 # Command to start the application
 CMD ["node", "server.js"]
