@@ -62,7 +62,7 @@ services:
     ports:
       - "3001:3001"
     environment:
-      MONGO_URI: mongodb://admin:password@mongodb:27017/ecommerce
+      MONGO_URI: "mongodb://admin:password@mongodb:27017/ecommerce?authSource=admin"
 
   frontend:
     build: ./front-end
