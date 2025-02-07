@@ -29,12 +29,12 @@
 //     console.log(`Server running on port ${port}`);
 // });
 
-const express = require('express');
-const cors = require('cors');
-require('dotenv').config();  // ✅ Load environment variables before anything else
+const express = require("express");
+const cors = require("cors");
+require("dotenv").config();  // ✅ Load environment variables first
 
 const app = express();
-const { mongoose, redisClient } = require('./config/db_conn'); // ✅ Ensure DB connection loads first
+const { mongoose, redisClient } = require("./config/db_conn"); // ✅ Ensure DB connection loads first
 
 const port = process.env.PORT || 9000;
 
@@ -43,36 +43,52 @@ app.use(cors());
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
-// ✅ Routes
-app.use("/products", require("./routes/productRouter"));
-app.use("/filter", require("./routes/filterRouter"));
+// ✅ Ensure MongoDB is Connected Before Starting Server
+mongoose.connection.once("open", () => {
+    console.log("✅ MongoDB Connection Established. Starting server...");
 
-// ✅ Graceful Shutdown Handling
-process.on("SIGINT", async () => {
-    console.log("\n⏳ Shutting down server...");
+    // ✅ Start Server Only After DB is Connected
+    const server = app.listen(port, () => {
+        console.log(`✅ Product service running on port ${port}`);
+    });
 
-    // Close MongoDB connection
-    await mongoose.connection.close();
-    console.log("✅ MongoDB Connection Closed");
+    // ✅ Graceful Shutdown Handling
+    process.on("SIGINT", async () => {
+        console.log("\n⏳ Shutting down product service...");
 
-    // Close Redis connection if enabled
-    if (redisClient) {
-        await redisClient.quit();
-        console.log("✅ Redis Connection Closed");
-    }
+        // Close MongoDB connection
+        await mongoose.connection.close();
+        console.log("✅ MongoDB Connection Closed");
 
-    process.exit(0);
+        // Close Redis connection if enabled
+        if (redisClient) {
+            await redisClient.quit();
+            console.log("✅ Redis Connection Closed");
+        }
+
+        server.close(() => {
+            console.log("✅ Server Closed. Exiting...");
+            process.exit(0);
+        });
+    });
+
+    // ✅ Global Error Handling
+    app.use((err, req, res, next) => {
+        console.error("❌ Server Error:", err);
+        res.status(500).json({ message: "Internal Server Error" });
+    });
+
+    // ✅ Routes
+    app.use("/products", require("./routes/productRouter"));
+    app.use("/filter", require("./routes/filterRouter"));
 });
 
-// ✅ Global Error Handling
-app.use((err, req, res, next) => {
-    console.error("❌ Server Error:", err);
-    res.status(500).json({ message: "Internal Server Error" });
+// ❌ Prevent Server Start If MongoDB Connection Fails
+mongoose.connection.on("error", (err) => {
+    console.error("🚨 MongoDB Connection Error:", err);
+    console.log("❌ Server will not start due to database failure.");
+    process.exit(1);
 });
 
-// ✅ Start Server
-app.listen(port, () => {
-    console.log(`✅ Server running on port ${port}`);
-});
 
 
