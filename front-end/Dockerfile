@@ -33,6 +33,7 @@ FROM nginx:stable-alpine
 RUN mkdir -p /usr/share/nginx/html
 
 # ✅ Copy built React app to Nginx public directory
+#COPY --from=build /app/dist /usr/share/nginx/html
 COPY --from=build /app/dist /usr/share/nginx/html
 
 EXPOSE 3000
