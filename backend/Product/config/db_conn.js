@@ -67,31 +67,49 @@ const mongoose = require("mongoose");
 const redis = require("redis");
 require("dotenv").config();
 
-// ✅ Initialize Redis Client Properly
-const redisClient = redis.createClient({
-  socket: {
-    host: process.env.REDIS_HOST || "localhost",
-    port: process.env.REDIS_PORT || 6379
-  }
-});
+// ✅ Initialize Redis Client Only If Enabled
+const useRedis = process.env.USE_REDIS === "true";  // Enable Redis via .env
+let redisClient;
 
-async function connectRedis() {
-  try {
-    await redisClient.connect();
-    console.log("✅ Redis Connected Successfully");
-  } catch (err) {
-    console.error("❌ Redis Connection Error:", err);
+if (useRedis) {
+  redisClient = redis.createClient({
+    socket: {
+      host: process.env.REDIS_HOST || "localhost",
+      port: process.env.REDIS_PORT || 6379
+    }
+  });
+
+  async function connectRedis() {
+    try {
+      await redisClient.connect();
+      console.log("✅ Redis Connected Successfully");
+    } catch (err) {
+      console.error("❌ Redis Connection Error:", err);
+    }
   }
+
+  connectRedis();
+} else {
+  console.log("⚠️ Redis is disabled. Set USE_REDIS=true in .env to enable.");
 }
 
 // ✅ Ensure MongoDB Environment Variables Exist
 const mongo_username = process.env.MONGO_USERNAME || "admin";
 const mongo_password = process.env.MONGO_PASSWORD || "password";
-const mongo_cluster = process.env.MONGO_CLUSTER || "localhost:27017";
+const mongo_cluster = process.env.MONGO_CLUSTER || "localhost";
 const mongo_database = process.env.MONGO_DBNAME || "ecommerce";
+const mongo_port = process.env.MONGO_PORT || "27017";
 
-// ✅ Construct MongoDB URI Securely
-const MONGO_URI = `mongodb+srv://${mongo_username}:${mongo_password}@${mongo_cluster}/${mongo_database}?retryWrites=true&w=majority`;
+// ✅ Automatically Choose the Correct MongoDB URI
+let MONGO_URI;
+
+if (mongo_cluster.includes("mongodb.net")) {
+  // ✅ MongoDB Atlas (Cloud)
+  MONGO_URI = `mongodb+srv://${mongo_username}:${mongo_password}@${mongo_cluster}/${mongo_database}?retryWrites=true&w=majority`;
+} else {
+  // ✅ Local or Docker MongoDB
+  MONGO_URI = `mongodb://${mongo_username}:${mongo_password}@${mongo_cluster}:${mongo_port}/${mongo_database}?authSource=admin`;
+}
 
 // ✅ Prevent Multiple Connections
 if (mongoose.connection.readyState === 0) {
@@ -105,7 +123,9 @@ if (mongoose.connection.readyState === 0) {
   console.log("⚠️ Mongoose already connected.");
 }
 
-// ✅ Connect to Redis
-connectRedis();
+// ✅ Export Redis Only If Enabled
+module.exports = {
+  mongoose,
+  redisClient: useRedis ? redisClient : null
+};
 
-module.exports = { mongoose, redisClient };
