@@ -33,7 +33,7 @@ metadata:
   name: user-service
 spec:
   type: ClusterIp
-  seclector:
+  selector:
      app: user
   ports:
     - protocol: TCP

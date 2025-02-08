@@ -33,7 +33,7 @@ metadata:
   name: frontend-service
 spec:
   type: ClusterIp
-  seclector:
+  selector:
      app: frontend
   ports:
     - protocol: TCP

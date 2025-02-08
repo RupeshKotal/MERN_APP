@@ -33,7 +33,7 @@ metadata:
   name: cart-service
 spec:
   type: ClusterIp
-  seclector:
+  selector:
      app: cart
   ports:
     - protocol: TCP

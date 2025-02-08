@@ -33,7 +33,7 @@ metadata:
   name: product-service
 spec:
   type: ClusterIp
-  seclector:
+  selector:
      app: product
   ports:
     - protocol: TCP
