@@ -1,7 +1,7 @@
 apiVersion: apps/v1
 kind: Deployment
-metadata: 
-  name: product-deployment
+metadata:
+  name: product-service
 spec:
   replicas: 2
   selector:
@@ -9,34 +9,35 @@ spec:
       app: product
   template:
     metadata:
-       name: product
-       labels:
-         app: product
+      labels:
+        app: product
     spec:
       containers:
         - name: product
-          image:  ruxs123/product:latest
+          image: your-dockerhub-username/mern-product:latest
           ports:
-           - containerPort: 3002
-          envFrom:
-           - configMapRef:
-               name: mern-config
-           - secretRef:
-               name: mern-secret
-
-
+            - containerPort: 3002
+          env:
+            - name: MONGO_URI
+              valueFrom:
+                secretKeyRef:
+                  name: mern-secrets
+                  key: MONGO_ATLAS_URI  # Change to MONGO_LOCAL_URI if using self-hosted
+            - name: JWT_SECRET
+              valueFrom:
+                secretKeyRef:
+                  name: mern-secrets
+                  key: JWT_SECRET
 ---
-
 apiVersion: v1
 kind: Service
-metadata: 
+metadata:
   name: product-service
 spec:
-  type: ClusterIP
   selector:
-     app: product
+    app: product
   ports:
     - protocol: TCP
       port: 3002
       targetPort: 3002
-  
+  type: ClusterIP

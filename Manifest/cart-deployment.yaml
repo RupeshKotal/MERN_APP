@@ -1,7 +1,7 @@
 apiVersion: apps/v1
 kind: Deployment
-metadata: 
-  name: cart-deployment
+metadata:
+  name: cart-service
 spec:
   replicas: 2
   selector:
@@ -9,34 +9,35 @@ spec:
       app: cart
   template:
     metadata:
-       name: cart
-       labels:
-         app: cart
+      labels:
+        app: cart
     spec:
       containers:
         - name: cart
-          image:  ruxs123/cart:latest
+          image: your-dockerhub-username/mern-cart:latest
           ports:
-           - containerPort: 3003
-          envFrom:
-           - configMapRef:
-               name: mern-config
-           - secretRef:
-               name: mern-secret
-
-
+            - containerPort: 3003
+          env:
+            - name: MONGO_URI
+              valueFrom:
+                secretKeyRef:
+                  name: mern-secrets
+                  key: MONGO_ATLAS_URI  # Change to MONGO_LOCAL_URI if using self-hosted
+            - name: JWT_SECRET
+              valueFrom:
+                secretKeyRef:
+                  name: mern-secrets
+                  key: JWT_SECRET
 ---
-
 apiVersion: v1
 kind: Service
-metadata: 
+metadata:
   name: cart-service
 spec:
-  type: ClusterIP
   selector:
-     app: cart
+    app: cart
   ports:
     - protocol: TCP
       port: 3003
       targetPort: 3003
-  
+  type: ClusterIP

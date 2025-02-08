@@ -1,7 +1,7 @@
 apiVersion: apps/v1
 kind: Deployment
-metadata: 
-  name: user-deployment
+metadata:
+  name: user-service
 spec:
   replicas: 2
   selector:
@@ -9,20 +9,31 @@ spec:
       app: user
   template:
     metadata:
-       name: user
-       labels:
-         app: user
+      labels:
+        app: user
     spec:
       containers:
         - name: user
-          image:  ruxs123/user:latest
+          image: ruxs123/user:latest
           ports:
-           - containerPort: 3001
-          envFrom:
-           - configMapRef:
-               name: mern-config
-           - secretRef:
-               name: mern-secret
+            - containerPort: 3001
+          env:
+            - name: MONGO_URI
+              valueFrom:
+                secretKeyRef:
+                  name: mern-secrets
+                  key: MONGO_ATLAS_URI  # Change to MONGO_LOCAL_URI if using self-hosted
+            - name: JWT_SECRET
+              valueFrom:
+                secretKeyRef:
+                  name: mern-secrets
+                  key: JWT_SECRET
+            - name: STRIPE_SECRET_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: mern-secrets
+                  key: STRIPE_SECRET_KEY
+
 
 
 ---
