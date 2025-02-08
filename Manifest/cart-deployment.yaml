@@ -1,0 +1,42 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata: 
+  name: cart-deployment
+spec:
+  replica: 2
+  selector:
+    matchLabels:
+      app: cart
+  template:
+    metadata:
+       name: cart
+       labels:
+         app: cart
+    spec:
+      containers:
+        - name: cart
+          image:  ruxs123/cart:latest
+          ports:
+           - containerPort: 3003
+          envFrom:
+           - configMapRef:
+               name: mern-config
+           - secretRef:
+               name: mern-secret
+
+
+---
+
+apiVersion: v1
+kind: Service
+metadata: 
+  name: cart-service
+spec:
+  type: ClusterIp
+  seclector:
+     app: cart
+  ports:
+    - protocol: TCP
+      port: 3003
+      targetPort: 3003
+  
