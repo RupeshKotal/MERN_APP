@@ -1,0 +1,11 @@
+- name: Download file
+  hosts: all
+
+  tasks:
+  - name: download file
+    get_url:
+      url: https://www.python.tar.zx
+      dest: /tmp/script/
+      user: paul
+      group: paul
+      mode: 0777

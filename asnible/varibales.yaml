@@ -1,0 +1,16 @@
+- name: Installing and staring services
+  hosts: all
+  become: true
+  vars: 
+   - app: nginx
+
+  tasks:
+  - name: Installing nginx
+    apt: 
+      name: "{{ app }}"
+      status: present
+
+  - name: Starting services
+    service:
+      name: "{{ app }}"
+      status: started

@@ -1,0 +1,10 @@
+- name: runninng shell script
+  hosts: web01
+  become: true
+
+  tasks:
+   - name: runing script
+     shell: ./my-scrip.sh >> test.log
+     args:
+     chdir: /home/ubuntu
+     creates: test.log

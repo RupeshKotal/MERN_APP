@@ -1,0 +1,62 @@
+- name: Installing apache on ubuntu
+  hosts: web01
+  become: true
+
+  tasks:
+   - name: Installing apace
+     apt:
+       name: apache2
+       state: present
+
+   - name: Staring service
+     service:
+       name: apache2
+       state: started
+
+   - name: Adding user
+     user:
+       name: rupesh
+       state: present
+
+   - name: adding group
+     group:
+       name: hello-group
+       state: present
+
+   - name: copying files
+     copy:
+       src: /home/ubuntu/server.yaml
+       dest: /home/ubuntu
+       owner: rupesh
+       mode: 0761
+       backup: true
+
+   - name: Creating directory
+     file:
+       path: /home/ubuntu/ansible
+       state: directory
+
+   - name: createing files
+     file:
+       path: /home/ubuntu/ansible/hello.txt
+       state: touch
+       owner: rupesh
+       group: hello-group
+       mode: u=rwx,g=rw,o=r
+
+- name: Installing on linux tomcat
+  hosts: web02
+  become: true
+
+  tasks:
+   - name: Installing tomcat
+     yum:
+       name: tomcat9
+       state: present
+
+   - name: Staring service
+     service:
+       name: tomcat9
+       state: started
+
+

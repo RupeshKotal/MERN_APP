@@ -1,0 +1,15 @@
+- name: Installing httpd
+  hosts: all
+
+  tasks:
+  - name: Installing http on redhat
+    yum:
+      name: httpd
+      state: presnet
+    when: ansible_os_family == "RedHat"
+
+  - name: Installing apache2 on ubuntu
+    apt: 
+     name: apache2
+     state: present
+    when: ansible_os_family == "Ubuntu"

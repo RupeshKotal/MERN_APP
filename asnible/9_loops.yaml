@@ -1,0 +1,14 @@
+---
+- name: User mang
+  hosts: all
+
+  tasks:
+  - name: Adding user
+    user:
+      name: "{{ item }}"
+      comment: adding on dev team
+      shell: /bin/bash
+    loop:
+    - Raju
+    - Sham
+    - Baburao

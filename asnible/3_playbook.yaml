@@ -1,0 +1,53 @@
+- name: Server config
+  hosts: webserver
+  become: true
+
+  tasks:
+  - name: Creating grooup
+    group:
+      name: ansible
+
+  - name: Creating User
+    user:
+      name: ansible
+      group: ansible
+
+  - name: Creating dircetory
+    file:
+      path: /home/ansible/workdir
+      state: directory
+  
+  - name: Copying files
+    copy: 
+      src: /home/ubuntu/server.yaml
+      dest: /home/ansible/workdir
+
+- name: Instaling nginx on ubuntu
+  hosts: web01
+  become: true
+
+  tasks:
+  - name: Installing nginx
+    apt:
+      name: nginx
+      state: present
+
+  - name: Starting nginx
+    service:
+      name: nginx
+      state: started
+
+- name: Instaling nginx on linux
+  hosts: web02
+  become: true
+
+  tasks:
+  - name: Installing nginx
+    yum:
+      name: nginx
+      state: present
+
+  - name: Starting nginx
+    service:
+      name: nginx
+      state: started

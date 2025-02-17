@@ -1,0 +1,19 @@
+- name: user managment
+  hosts: webserver
+  become: true
+
+  tasks:
+  - name: User Creation
+    user:
+      name: rupesh
+      comment: new user added
+      shell: /bin/bash
+      groups: QA,nick
+      state: absent # for removing user
+      remove: yes  # for removing direct of user
+
+  - name: Update password
+    user:
+      name: nick
+      update_password: always
+      password: "{{'123456'| password_hash('sha512')}}"
