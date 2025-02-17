@@ -1,0 +1,34 @@
+- name: Jenkins Installation
+  hosts: web02
+  gather_facts: false
+  become: true
+  tasks:
+  - name: Ensure Jnekins Repository is installed
+    yum_repository:
+      name: jenkins
+      state: present
+      description: Officail JenkinsYum repo
+      baseurl: http://pkg.jenkins.io/redhat-stable
+      gpgcheck: no
+      enabled: yes
+    
+
+  # - name: Install Java
+  #   yum: 
+  #     name: java-11-openjdk-devel
+  #     state: present
+
+  - name: Install Jenkins
+    yum: 
+      name: jenkins
+      state: present
+
+  - name: daemon-reload to pick up config change
+    systemd:
+      daemon_reload: yes
+
+  - name: Start Jenkins
+    service:
+      name: jenkins
+      state: started
+  
